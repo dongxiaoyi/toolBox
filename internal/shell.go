@@ -38,6 +38,51 @@ func ShellExecuteRemote(ip, port, user, password, cmdStr string) (string, error)
 	return string(combo), nil
 }
 
+// 执行远程shell指令(流式输出结果)
+func ShellExecuteRemoteStream(ip, port, user, password, cmdStr string) error {
+	config := &ssh.ClientConfig{
+		Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
+		User:            user,
+		Auth: []ssh.AuthMethod{ssh.Password(password)},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
+		//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+	}
+
+	sshClient, err := ssh.Dial("tcp", ip+":"+port, config)
+	if err != nil {
+		return err
+	}
+	defer sshClient.Close()
+
+	//创建ssh-session
+	session, err := sshClient.NewSession()
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+	stdout, err := session.StdoutPipe()
+	session.Stderr = session.Stdout
+	//执行远程命令
+	//_, err = session.CombinedOutput(cmdStr)
+	err = session.Start(cmdStr)
+	if err != nil {
+		return err
+	}
+	for {
+		tmp := make([]byte, 1024)
+		_, err = stdout.Read(tmp)
+		fmt.Print(string(tmp))
+		if err != nil {
+			break
+		}
+	}
+	err = session.Wait()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func ShellScpRemote(ip, port, user, password, src, dest string) (string, error) {
 	config := &ssh.ClientConfig{
 		Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
