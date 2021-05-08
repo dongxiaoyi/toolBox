@@ -2,7 +2,7 @@ package libs
 
 import (
 	"fmt"
-	"github.com/dongxiaoyi/ntpck/internal"
+	"github.com/dongxiaoyi/toolBox/internal"
 	"os"
 	"strings"
 	"time"
