@@ -1,13 +1,22 @@
 package libs
 
 import (
+	"errors"
 	"fmt"
 	"github.com/dongxiaoyi/toolBox/internal"
 	"os"
 	"strings"
 )
 
-// ./toolBox mod shell execute from=str 172.16.4.111:22:yanfa:redhat@2020 "if [ ! -f "/data/tmp/rbac.yaml" ]; then echo xxxx; fi"
+/*
+Example：
+$ ./toolBox mod shell execute from=str 172.16.4.111:22:yanfa:redhat@2020 "if [ ! -f "/data/tmp/rbac.yaml" ]; then echo xxxx; fi"
+or
+$ ./toolBox mod shell execute from=str 172.16.4.111:22:yanfa "if [ ! -f "/data/tmp/rbac.yaml" ]; then echo xxxx; fi"
+
+说明：
+- 不输入密码的时候 -> ip:port:user;输入密码的时候 -> ip:port:user:password
+*/
 func (t T) ShellExecute(m map[string]string) {
 	if _, ok := m["cmdContent"]; ok {
 		m["ip_port_user_pass_cmd"] = m["cmdContent"]
@@ -31,15 +40,34 @@ func (t T) ShellExecute(m map[string]string) {
 	cmdClice := ipPortUserPassCmdSlice[1:]
 	cmdStr := strings.Join(cmdClice, " ")
 
-	result, err := internal.ShellExecuteRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
+	var result string
+	var err error
+
+	if len(ipPortUserPassSlice) == 4 {
+		result, err = internal.ShellExecuteRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
+	} else if len(ipPortUserPassSlice) == 3 {
+		result, err = internal.ShellExecuteRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], nil, cmdStr)
+	} else {
+		fmt.Println(errors.New("请输入远程地址的ip、port、user、[password]"))
+		os.Exit(3)
+	}
+
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		os.Exit(4)
 	}
 	fmt.Println(result)
 }
 
-// ./toolBox mod shell stream from=str 172.16.4.111:22:yanfa:redhat@2020 "if [ ! -f "/data/tmp/rbac.yaml" ]; then echo xxxx; fi"
+/*
+Example：
+$ ./toolBox mod shell stream from=str 172.16.4.111:22:yanfa:redhat@2020 "if [ ! -f "/data/tmp/rbac.yaml" ]; then echo xxxx; fi"
+or
+$ ./toolBox mod shell stream from=str 172.16.4.111:22:yanfa "if [ ! -f "/data/tmp/rbac.yaml" ]; then echo xxxx; fi"
+
+说明：
+- 不输入密码的时候 -> ip:port:user;输入密码的时候 -> ip:port:user:password
+*/
 func (t T) ShellStream(m map[string]string) {
 	if _, ok := m["cmdContent"]; ok {
 		m["ip_port_user_pass_cmd"] = m["cmdContent"]
@@ -63,13 +91,33 @@ func (t T) ShellStream(m map[string]string) {
 	cmdClice := ipPortUserPassCmdSlice[1:]
 	cmdStr := strings.Join(cmdClice, " ")
 
-	err := internal.ShellExecuteRemoteStream(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
+	var err error
+
+	if len(ipPortUserPassSlice) == 4 {
+		err = internal.ShellExecuteRemoteStream(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
+	} else if len(ipPortUserPassSlice) == 3 {
+		err = internal.ShellExecuteRemoteStream(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], nil, cmdStr)
+	} else {
+		fmt.Println(errors.New("请输入远程地址的ip、port、user、[password]"))
+		os.Exit(3)
+	}
+
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		os.Exit(4)
 	}
 }
 
+
+/*
+Example:
+$ ./toolBox mod scp 172.16.4.110:22:yanfa:redhat@2020 /tmp/xxx /home/yanfa/xxx
+or
+$ ./toolBox mod scp 172.16.4.110:22:yanfa /tmp/xxx /home/yanfa/xxx
+
+说明：
+- 不输入密码的时候 -> ip:port:user;输入密码的时候 -> ip:port:user:password
+*/
 func (t T) ShellScp(m map[string]string) {
 	if _, ok := m["cmdContent"]; ok {
 		m["ip_port_user_pass_src_dest"] = m["cmdContent"]
@@ -89,12 +137,24 @@ func (t T) ShellScp(m map[string]string) {
 		fmt.Println(msgMessage)
 		os.Exit(2)
 	}
+	ipPortUserPassSlice := strings.Split(ipPortUserPassSrcDestSlice[0], ":")
 
-	msg, err := internal.ShellScpRemote(ipPortUserPassSrcDestSlice[0], ipPortUserPassSrcDestSlice[1], ipPortUserPassSrcDestSlice[2],
-		ipPortUserPassSrcDestSlice[3], ipPortUserPassSrcDestSlice[4], ipPortUserPassSrcDestSlice[5])
+	var msg string
+	var err error
+	if len(ipPortUserPassSlice) == 4 {
+		msg, err = internal.ShellScpRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2],
+			ipPortUserPassSlice[3], ipPortUserPassSrcDestSlice[1], ipPortUserPassSrcDestSlice[2])
+	} else if len(ipPortUserPassSlice) == 3 {
+		msg, err = internal.ShellScpRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2],
+			nil, ipPortUserPassSrcDestSlice[1], ipPortUserPassSrcDestSlice[2])
+	} else {
+		fmt.Println(errors.New("请输入远程地址的ip、port、user、[password]"))
+		os.Exit(3)
+	}
+
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(3)
+		os.Exit(4)
 	} else {
 		fmt.Println(msg)
 	}

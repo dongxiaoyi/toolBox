@@ -4,18 +4,47 @@ import (
 	"fmt"
 	"github.com/bramvdbogaerde/go-scp"
 	"golang.org/x/crypto/ssh"
+	"io/ioutil"
 	"os"
+	"path"
 	"time"
 )
 
 // 执行远程shell指令
-func ShellExecuteRemote(ip, port, user, password, cmdStr string) (string, error) {
-	config := &ssh.ClientConfig{
-		Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
-		User:            user,
-		Auth: []ssh.AuthMethod{ssh.Password(password)},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
-		//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+func ShellExecuteRemote(ip, port, user string, password interface{}, cmdStr string) (string, error) {
+	var config *ssh.ClientConfig
+	if password != nil {
+		// 账号密码登录
+		config = &ssh.ClientConfig{
+			Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
+			User:            user,
+			Auth: []ssh.AuthMethod{ssh.Password(password.(string))},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
+			//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+		}
+	} else {
+		// 免密登录
+		userDir := fmt.Sprintf(`/home/%s`, user)
+		if user == "root" {
+			userDir = "/root"
+		}
+
+		pemKeyPath := path.Join(userDir, ".ssh/id_rsa")
+		pemBytes, err := ioutil.ReadFile(pemKeyPath)
+		if err != nil {
+			return ip +"获取私钥失败", err
+		}
+		signer, err := ssh.ParsePrivateKey(pemBytes)
+		if err != nil {
+			return ip +"解析私钥失败", err
+		}
+		config = &ssh.ClientConfig{
+			Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
+			User:            user,
+			Auth: []ssh.AuthMethod{ssh.PublicKeys(signer)},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
+			//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+		}
 	}
 
 	sshClient, err := ssh.Dial("tcp", ip+":"+port, config)
@@ -39,13 +68,39 @@ func ShellExecuteRemote(ip, port, user, password, cmdStr string) (string, error)
 }
 
 // 执行远程shell指令(流式输出结果)
-func ShellExecuteRemoteStream(ip, port, user, password, cmdStr string) error {
-	config := &ssh.ClientConfig{
-		Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
-		User:            user,
-		Auth: []ssh.AuthMethod{ssh.Password(password)},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
-		//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+func ShellExecuteRemoteStream(ip, port, user string, password interface{}, cmdStr string) error {
+	var config *ssh.ClientConfig
+	if password != nil {
+		config = &ssh.ClientConfig{
+			Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
+			User:            user,
+			Auth: []ssh.AuthMethod{ssh.Password(password.(string))},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
+			//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+		}
+	} else {
+		// 免密登录
+		userDir := fmt.Sprintf(`/home/%s`, user)
+		if user == "root" {
+			userDir = "/root"
+		}
+
+		pemKeyPath := path.Join(userDir, ".ssh/id_rsa")
+		pemBytes, err := ioutil.ReadFile(pemKeyPath)
+		if err != nil {
+			return err
+		}
+		signer, err := ssh.ParsePrivateKey(pemBytes)
+		if err != nil {
+			return err
+		}
+		config = &ssh.ClientConfig{
+			Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
+			User:            user,
+			Auth: []ssh.AuthMethod{ssh.PublicKeys(signer)},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
+			//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+		}
 	}
 
 	sshClient, err := ssh.Dial("tcp", ip+":"+port, config)
@@ -83,13 +138,39 @@ func ShellExecuteRemoteStream(ip, port, user, password, cmdStr string) error {
 	return nil
 }
 
-func ShellScpRemote(ip, port, user, password, src, dest string) (string, error) {
-	config := &ssh.ClientConfig{
-		Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
-		User:            user,
-		Auth: []ssh.AuthMethod{ssh.Password(password)},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
-		//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+func ShellScpRemote(ip, port, user string, password interface{}, src, dest string) (string, error) {
+	var config *ssh.ClientConfig
+	if password != nil {
+		config = &ssh.ClientConfig{
+			Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
+			User:            user,
+			Auth: []ssh.AuthMethod{ssh.Password(password.(string))},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
+			//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+		}
+	} else {
+		// 免密登录
+		userDir := fmt.Sprintf(`/home/%s`, user)
+		if user == "root" {
+			userDir = "/root"
+		}
+
+		pemKeyPath := path.Join(userDir, ".ssh/id_rsa")
+		pemBytes, err := ioutil.ReadFile(pemKeyPath)
+		if err != nil {
+			return ip +"获取私钥失败", err
+		}
+		signer, err := ssh.ParsePrivateKey(pemBytes)
+		if err != nil {
+			return ip +"解析私钥失败", err
+		}
+		config = &ssh.ClientConfig{
+			Timeout:         time.Second,//ssh 连接time out 时间一秒钟, 如果ssh验证错误 会在一秒内返回
+			User:            user,
+			Auth: []ssh.AuthMethod{ssh.PublicKeys(signer)},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //这个可以， 但是不够安全
+			//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+		}
 	}
 
 	sshClient, err := ssh.Dial("tcp", ip+":"+port, config)
