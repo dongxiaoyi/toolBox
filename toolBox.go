@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	Logger = configs.NewLogger(true, true, true, true, false, "console")
+	Logger = configs.NewLogger(false, true, true, true, false, "console")
 
 	rootCmd.AddCommand(libs.CmdMod)
 }
