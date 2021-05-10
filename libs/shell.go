@@ -90,6 +90,7 @@ func (t T) ShellStream(m map[string]string) {
 	ipPortUserPassSlice := strings.Split(ipPortUserPassCmdSlice[0], ":")
 	cmdClice := ipPortUserPassCmdSlice[1:]
 	cmdStr := strings.Join(cmdClice, " ")
+	fmt.Println(cmdStr)
 
 	var err error
 
