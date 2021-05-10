@@ -1,4 +1,4 @@
-package internal
+package pkg
 
 import (
 	netntp "github.com/beevik/ntp"

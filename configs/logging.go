@@ -2,7 +2,7 @@ package configs
 
 import (
 	"fmt"
-	"github.com/dongxiaoyi/toolBox/internal"
+	"github.com/dongxiaoyi/toolBox/pkg"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -28,7 +28,7 @@ func LogLevel() map[string]zapcore.Level {
 
 // 初始化日志
 func NewLogger(isRotate, rotateConsole, disableStacktrace, disableCeller, isConsole bool, encodingType string) *zap.SugaredLogger {
-	curPath := internal.AbsPath()
+	curPath := pkg.AbsPath()
 
 	logLevelOpt := "DEBUG" // 日志级别
 	levelMap := LogLevel()
@@ -53,16 +53,16 @@ func NewLogger(isRotate, rotateConsole, disableStacktrace, disableCeller, isCons
 
 	// 初始化字段
 	filedKey := "service"
-	fieldValue := "ntpCheck"
+	fieldValue := "toolBox"
 	filed := zap.Fields(zap.String(filedKey, fieldValue))
 
 	outputPath := []string{
-		//"stdout",
-		path.Join(curPath, "check.log"),
+		"stdout",
+		//path.Join(curPath, "check.log"),
 	}
 	errorPath := []string{
-		//"stderr",
-		path.Join(curPath, "check.log"),
+		"stderr",
+		//path.Join(curPath, "check.log"),
 	}
 
 	// 是否开启日志滚动

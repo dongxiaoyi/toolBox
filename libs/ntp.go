@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dongxiaoyi/toolBox/configs"
-	"github.com/dongxiaoyi/toolBox/internal"
+	"github.com/dongxiaoyi/toolBox/pkg"
 	"os"
 	"strings"
 )
@@ -20,7 +20,7 @@ func (t T) NtpServer(m map[string]string) {
 		os.Exit(3)
 	}
 
-	internal.NtpServer(strings.TrimSpace(m["address"]))
+	pkg.NtpServer(strings.TrimSpace(m["address"]))
 }
 
 func (t T) NtpClient(m map[string]string) {
@@ -33,7 +33,7 @@ func (t T) NtpClient(m map[string]string) {
 		os.Exit(1)
 	}
 
-	result := internal.NtpClientRemote(m["ntp_server"])
+	result := pkg.NtpClientRemote(m["ntp_server"])
 	js, err := json.Marshal(result)
 	if err != nil {
 		fmt.Println(err)
@@ -53,7 +53,7 @@ func (t T) NtpNetclient(m map[string]string) {
 		os.Exit(1)
 	}
 
-	result := internal.NtpNetclient(strings.TrimSpace(m["ntp_server"]))
+	result := pkg.NtpNetclient(strings.TrimSpace(m["ntp_server"]))
 
 	e, _ := json.Marshal(result)
 	fmt.Println(string(e))

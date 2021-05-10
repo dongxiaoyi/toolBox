@@ -3,7 +3,7 @@ package libs
 import (
 	"errors"
 	"fmt"
-	"github.com/dongxiaoyi/toolBox/internal"
+	"github.com/dongxiaoyi/toolBox/pkg"
 	"os"
 	"strings"
 )
@@ -44,9 +44,9 @@ func (t T) ShellExecute(m map[string]string) {
 	var err error
 
 	if len(ipPortUserPassSlice) == 4 {
-		result, err = internal.ShellExecuteRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
+		result, err = pkg.ShellExecuteRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
 	} else if len(ipPortUserPassSlice) == 3 {
-		result, err = internal.ShellExecuteRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], nil, cmdStr)
+		result, err = pkg.ShellExecuteRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], nil, cmdStr)
 	} else {
 		fmt.Println(errors.New("请输入远程地址的ip、port、user、[password]"))
 		os.Exit(3)
@@ -95,9 +95,9 @@ func (t T) ShellStream(m map[string]string) {
 	var err error
 
 	if len(ipPortUserPassSlice) == 4 {
-		err = internal.ShellExecuteRemoteStream(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
+		err = pkg.ShellExecuteRemoteStream(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], ipPortUserPassSlice[3], cmdStr)
 	} else if len(ipPortUserPassSlice) == 3 {
-		err = internal.ShellExecuteRemoteStream(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], nil, cmdStr)
+		err = pkg.ShellExecuteRemoteStream(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2], nil, cmdStr)
 	} else {
 		fmt.Println(errors.New("请输入远程地址的ip、port、user、[password]"))
 		os.Exit(3)
@@ -143,10 +143,10 @@ func (t T) ShellScp(m map[string]string) {
 	var msg string
 	var err error
 	if len(ipPortUserPassSlice) == 4 {
-		msg, err = internal.ShellScpRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2],
+		msg, err = pkg.ShellScpRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2],
 			ipPortUserPassSlice[3], ipPortUserPassSrcDestSlice[1], ipPortUserPassSrcDestSlice[2])
 	} else if len(ipPortUserPassSlice) == 3 {
-		msg, err = internal.ShellScpRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2],
+		msg, err = pkg.ShellScpRemote(ipPortUserPassSlice[0], ipPortUserPassSlice[1], ipPortUserPassSlice[2],
 			nil, ipPortUserPassSrcDestSlice[1], ipPortUserPassSrcDestSlice[2])
 	} else {
 		fmt.Println(errors.New("请输入远程地址的ip、port、user、[password]"))

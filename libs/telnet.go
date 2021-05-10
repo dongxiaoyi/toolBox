@@ -2,7 +2,7 @@ package libs
 
 import (
 	"fmt"
-	"github.com/dongxiaoyi/toolBox/internal"
+	"github.com/dongxiaoyi/toolBox/pkg"
 	"os"
 	"strings"
 	"time"
@@ -27,7 +27,7 @@ func (t T) TelnetTest(m map[string]string) {
 	ipPortSlice := strings.Fields(ipPortListStr)
 
 	result := make(chan []byte)
-	go internal.TelnetConnTest(ipPortSlice, result)
+	go pkg.TelnetConnTest(ipPortSlice, result)
 
 	select {
 	case r := <- result:

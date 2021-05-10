@@ -2,7 +2,7 @@ package configs
 
 import (
 	"github.com/Unknwon/goconfig"
-	"github.com/dongxiaoyi/toolBox/internal"
+	"github.com/dongxiaoyi/toolBox/pkg"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
@@ -23,7 +23,7 @@ func NewActionConfig(filename string) *ActionConfig {
 	logger := NewLogger(true, true, true, true, false, "console")
 
 	if !strings.HasPrefix(filename, "/") {
-		filename = filepath.Join(internal.AbsPath(), filename)
+		filename = filepath.Join(pkg.AbsPath(), filename)
 	}
 
 	// 手动读文件，修正（单section的多行文本配置转单行）后使用goconfig.LoadFromData()
