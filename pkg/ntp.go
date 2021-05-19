@@ -2,7 +2,7 @@ package pkg
 
 import (
 	netntp "github.com/beevik/ntp"
-	ntp "github.com/lixiangyun/go_ntp"
+	ntp "github.com/dongxiaoyi/go_ntp"
 	"time"
 )
 
