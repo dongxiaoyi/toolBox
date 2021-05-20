@@ -25,27 +25,71 @@ $ GOROOT=/data/github.com/dongxiaoyi/toolBox/build GOPATH=/data/github.com/dongx
 说明：
 - 编译完成后会在build/gowork/src/toolBox/目录下生成toolBox的二进制文件。
 
+# 二、操作
+> 两种操作方式：配置文件 or 命令行参数
 
-## 1. 模块配置
-> 配置configs/actions.ini文件
+```shell
+$ ./toolBox --help     
+Usage:
+  toolBox [command]
+
+Available Commands:
+  help        Help about any command
+  mod         module
+
+Flags:
+  -h, --help   help for toolBox
+
+Use "toolBox [command] --help" for more information about a command.
+```
+
+目前支持的模块：
+
+|模块名称|操作|说明|
+|---|---|---|
+|ntp|server|启动一个本地的ntp server|
+|ntp|client|与上述ntp server对应，返回主机与ntp server的时间偏移|
+|ntp|netclient|返回与网络ntp server的时间差|
+|shell|execute|执行shell指令(一次性显示全部返回值)|
+|shell|stream|执行shell指令(流式显示)|
+|shell|scp|传递本地文件到远程主机(单文件)|
+|telnet|test|测试远程主机的端口是否开放|
+
+## 2.1 配置文件方式操作
+> 配置configs/actions.ini文件，如下给出了目前支持的模块的参考配置
 
 `configs/actions.ini`说明：
 ```ini
-[mod_name.mod_action]
-mod_args = arg1
-mod_multiline_args = """
-mod_multiline_arg1
-mod_multiline_arg2
-mod_multiline_arg3
+[ntp.server]
+address = """
+172.16.4.129:8888
 """
-```
 
-## 2. 当前的支持的mod及action
+[ntp.client]
+ntp_server = """
+172.16.4.129:8888
+"""
 
-### 2.1 telnet模块
-#### 2.2 telnet模块action：test
-configs/actions.ini配置方法参考：
-```ini
+[ntp.netclient]
+ntp_server = """
+ntp.aliyun.com
+"""
+
+[shell.execute]
+ip_port_user_pass_cmd = """
+172.16.4.111:22:yanfa:redhat@2020 "echo cmdString"
+"""
+
+[shell.stream]
+ip_port_user_pass_cmd = """
+172.16.4.111:22:yanfa:redhat@2020 "echo cmdString"
+"""
+
+[shell.scp]
+ip_port_user_pass_src_dest = """
+172.16.4.110:22:yanfa:redhat@2020 /tmp/xxx /home/yanfa/xxx
+"""
+
 [telnet.test]
 ip_port_list = """
 172.16.4.129:22 172.16.4.129:16380 172.16.4.129:16381 172.16.4.129:16382
@@ -53,19 +97,28 @@ ip_port_list = """
 172.16.4.137:22
 """
 ```
-执行操作：
+
+执行操作示例：
 
 ```shell
-$ ./op-tools mod telnet test
+$ ./toolBox mod ntp server
+$ ./toolBox mod ntp client
+$ ./toolBox mod ntp netclient
+$ ./toolBox mod shell execute
+$ ./toolBox mod shell stream
+$ ./toolBox mod shell scp
+$ ./toolBox mod telnet test
 ```
 
-当然，也可以不做配置文件配置，直接命令行执行，如：
+## 2. 命令行方式直接执行
+> 上述方式需要当然，也可以不做配置文件配置，直接命令行执行，示例如：
 
 ```shell
-$ ./op-tools mod telnet test from=str 172.16.4.128:22 172.16.4.129:22
+$ ./toolBox mod ntp server from=str 172.16.4.128:8888
+$ ./toolBox mod ntp client from=str 172.16.4.128:8888
+$ ./toolBox mod ntp netclient from=str ntp.aliyun.com
+$ ./toolBox mod shell execute from=str 172.16.4.111:22:yanfa:redhat@2020 "echo cmdString"
+$ ./toolBox mod shell stream from=str 172.16.4.111:22:yanfa:redhat@2020 "echo cmdString"
+$ ./toolBox mod shell scp from=str 172.16.4.110:22:yanfa:redhat@2020 /tmp/xxx /home/yanfa/xxx
+$ ./toolBox mod telnet test from=str 172.16.4.129:22 172.16.4.129:16380 172.16.4.129:16381 172.16.4.129:16382
 ```
-
-其他：
-- closestmatch要使用github最新的代码，不要使用go mod的版本，go mod版本的代码有bug
-
-BUG:超时后不能统计到结果。
