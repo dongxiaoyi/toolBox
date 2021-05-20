@@ -1,5 +1,31 @@
 # linux操作工具集
 
+# 一、编译：
+## 1.指定GOROOT环境变量
+> 项目目录下的build目录的绝对路径，如：GOROOT=/data/github.com/dongxiaoyi/toolBox/build
+
+## 2.指定GOPATH环境变量
+> 项目目录下的build/gowork目录的绝对路径，如：GOPATH=/data/github.com/dongxiaoyi/toolBox/build/gowork
+
+## 3.其他相关环境变量
+- GO111MODULE=on 用于使用go modules做项目依赖管理
+- CGO_ENABLED=0 不允许在go代码中调用C代码
+- GOOS=linux 编译linux下可用的架构
+
+## 4.其他说明
+- go语言的指令路径：项目目录下的build/bin
+- 项目依赖包缓存的路径：项目目录下的build/gowork/pkg/mod
+
+## 5.编译示例
+```shell
+$ cp toolBox.go build/gowork/src/toolBox/
+$ cd build/gowork/src/toolBox/
+$ GOROOT=/data/github.com/dongxiaoyi/toolBox/build GOPATH=/data/github.com/dongxiaoyi/toolBox/build/gowork GO111MODULE=on CGO_ENABLED=0 GOOS=linux  /data/github.com/dongxiaoyi/toolBox/build/bin/go build
+```
+说明：
+- 编译完成后会在build/gowork/src/toolBox/目录下生成toolBox的二进制文件。
+
+
 ## 1. 模块配置
 > 配置configs/actions.ini文件
 
